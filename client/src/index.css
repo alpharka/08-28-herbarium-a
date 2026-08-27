@@ -63,6 +63,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; background: var(--ivory); }
+body { overscroll-behavior-x: none; }
 body {
   margin: 0;
   min-width: 320px;
@@ -151,7 +152,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .header-date { display: flex; align-items: center; gap: 12px; font-size: 10px; letter-spacing: .18em; color: var(--terracotta); }
 .header-line { display: block; width: 34px; height: 1px; background: currentColor; }
 
-.main-content { position: relative; padding-bottom: 0; }
+.main-content { position: relative; display: flex; flex-flow: row nowrap; width: 100vw; height: 100svh; min-height: 100svh; overflow-x: auto; overflow-y: hidden; padding-bottom: 0; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; touch-action: pan-x pan-y; }
+.main-content::-webkit-scrollbar { display: none; }
+.main-content > .hero-section, .main-content > .section, .main-content > .site-footer { flex: 0 0 100vw; width: 100vw; min-width: 100vw; height: 100%; min-height: 100%; scroll-snap-align: start; scroll-snap-stop: always; }
+.main-content > .hero-section, .main-content > .section { overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+.main-content > .site-footer { min-height: 100%; }
 .hero-section { position: relative; display: flex; align-items: flex-end; min-height: 100svh; overflow: hidden; color: var(--ivory); background: var(--plum); }
 .hero-image { position: absolute; inset: 0; background: url("/manus-storage/garden-portrait_4a5c7bd6.jpg") center / cover; transform: scale(1.02); }
 .hero-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(47, 39, 41, .88) 0%, rgba(47, 39, 41, .35) 52%, rgba(47, 39, 41, .1) 100%), linear-gradient(0deg, rgba(38, 37, 30, .65), transparent 55%); }
@@ -171,7 +176,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .hero-mark { position: absolute; z-index: 1; right: clamp(22px, 6vw, 88px); bottom: 42px; display: grid; gap: 6px; justify-items: end; color: rgba(244, 239, 230, .6); font-size: 9px; letter-spacing: .2em; writing-mode: vertical-rl; }
 .hero-mark span:first-child { color: var(--terracotta); font-family: "Cormorant Garamond", Georgia, serif; font-size: 18px; letter-spacing: 0; }
 
-.section { position: relative; scroll-margin-top: 88px; overflow: hidden; }
+.section { position: relative; scroll-margin-top: 0; overflow: hidden; }
 .section-inner { position: relative; width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
 .paper-section { background: var(--ivory); }
 .paper-section::before, .terracotta-section::before, .moss-section::before, .plum-section::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .23; background-image: radial-gradient(rgba(46, 58, 50, .18) .55px, transparent .55px); background-size: 8px 8px; mix-blend-mode: multiply; }
@@ -306,7 +311,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .copy-button { position: absolute; top: 16px; right: 0; display: inline-flex; align-items: center; gap: 5px; padding: 0; border: 0; background: transparent; color: var(--terracotta); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
 .copy-button:hover { color: var(--ivory); }
 
-.site-footer { display: grid; justify-items: center; gap: 8px; padding: 70px 24px 110px; color: var(--moss); background: var(--ivory); text-align: center; }
+.site-footer { display: grid; align-content: center; justify-items: center; gap: 8px; padding: 70px 24px 110px; color: var(--moss); background: var(--ivory); text-align: center; }
 .site-footer .emblem { margin-bottom: 8px; }
 .site-footer p { margin: 0; font-family: "Cormorant Garamond", Georgia, serif; font-size: 25px; }
 .site-footer > span { color: rgba(46, 58, 50, .55); font-size: 10px; letter-spacing: .17em; text-transform: uppercase; }
@@ -350,6 +355,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .hero-stamp { top: 96px; right: 20px; }
   .hero-mark { bottom: 103px; }
   .section-inner { width: min(100% - 38px, 650px); }
+  .main-content > .section { padding-bottom: 112px; }
   .split-layout, .rsvp-layout, .gift-layout { grid-template-columns: 1fr; gap: 22px; }
   .story-copy { padding-top: 50px; }
   .dropcap { left: -8px; top: -12px; font-size: 76px; }

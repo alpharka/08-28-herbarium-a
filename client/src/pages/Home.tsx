@@ -188,6 +188,7 @@ export default function Home() {
   const [countdown, setCountdown] = useState<Countdown>(() => getCountdown("2027-06-19T09:00:00+07:00"));
   const [startX, setStartX] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const mainContentRef = useRef<HTMLElement>(null);
   const calendarUrl = useMemo(buildCalendarUrl, []);
 
   useEffect(() => {
@@ -221,19 +222,17 @@ export default function Home() {
   }, [coverOpen, guestbook.length]);
 
   useEffect(() => {
-    const observers = chapterIds.map((chapterId) => {
-      const node = document.getElementById(chapterId);
-      if (!node) return null;
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0]?.isIntersecting) setActiveChapter(chapterId);
-        },
-        { rootMargin: "-35% 0px -55% 0px", threshold: 0 },
-      );
-      observer.observe(node);
-      return observer;
-    });
-    return () => observers.forEach((observer) => observer?.disconnect());
+    const main = mainContentRef.current;
+    if (!main) return;
+    const updateActivePanel = () => {
+      const panelWidth = Math.max(main.clientWidth, 1);
+      const panelIndex = Math.round(main.scrollLeft / panelWidth);
+      const chapterIndex = Math.max(0, Math.min(chapterIds.length - 1, panelIndex - 1));
+      setActiveChapter(chapterIds[chapterIndex]);
+    };
+    main.addEventListener("scroll", updateActivePanel, { passive: true });
+    updateActivePanel();
+    return () => main.removeEventListener("scroll", updateActivePanel);
   }, []);
 
   useEffect(() => {
@@ -259,15 +258,20 @@ export default function Home() {
       event.preventDefault();
       const currentIndex = chapterIds.indexOf(activeChapter);
       const nextIndex = event.key === "ArrowRight" ? Math.min(chapterIds.length - 1, currentIndex + 1) : Math.max(0, currentIndex - 1);
-      document.getElementById(chapterIds[nextIndex])?.scrollIntoView({ behavior: "smooth", block: "start" });
+      scrollToChapter(chapterIds[nextIndex]);
     };
     window.addEventListener("keydown", handleKeyboardChapter);
     return () => window.removeEventListener("keydown", handleKeyboardChapter);
   }, [activeChapter]);
 
-  const scrollToChapter = (chapterId: string) => {
-    document.getElementById(chapterId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToPanel = (panelId: string) => {
+    const main = mainContentRef.current;
+    const panel = document.getElementById(panelId);
+    if (!main || !panel) return;
+    main.scrollTo({ left: panel.offsetLeft, behavior: "smooth" });
   };
+
+  const scrollToChapter = (chapterId: string) => scrollToPanel(chapterId);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse") return;
@@ -374,7 +378,7 @@ export default function Home() {
       </div>
 
       <header className="site-header" aria-label="Navigasi utama">
-        <button className="brand-lockup" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} type="button" aria-label="Kembali ke awal undangan">
+          <button className="brand-lockup" onClick={() => scrollToPanel("home")} type="button" aria-label="Kembali ke awal undangan">
           <Emblem small /><span>{invitationConfig.couple.shortNames}</span>
         </button>
         <nav className="desktop-nav">
@@ -383,7 +387,7 @@ export default function Home() {
         <div className="header-date">{invitationConfig.event.dateShort}<span className="header-line" /></div>
       </header>
 
-      <main className="main-content" tabIndex={-1}>
+      <main className="main-content" ref={mainContentRef} tabIndex={-1}>
         <section className="hero-section" id="home" aria-labelledby="hero-heading">
           <div className="hero-image" />
           <div className="hero-overlay" />
